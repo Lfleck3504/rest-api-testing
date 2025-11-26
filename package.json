@@ -2,7 +2,10 @@
 	"name": "rest-api-testing",
 	"version": "1.0.0",
 	"dependencies": {
-		 "@hapi/hapi": "^21.3.2"
+		"@hapi/hapi": "^21.3.2",
+		"@hapi/joi": "^17.1.1",
+		"fs": "^0.0.1-security",
+		"path": "^0.12.7"
 	},
 	"main": "server.js",
 	"scripts": {

@@ -1,4 +1,7 @@
 const Hapi = require('@hapi/hapi');
+const Joi = require('@hapi/joi');
+const path = require('path');
+const fs = require('fs');
 
 const init = async () => {
   const server = Hapi.server({
@@ -8,44 +11,26 @@ const init = async () => {
     routes: { cors: true },
   });
 
-  // GET /
-  // Responds with plain text; includes query string if present.
-  server.route({
-    method: 'GET',
-    path: '/',
-    handler: (request, h) => {
-      const q = request.query || {};
-      const qs = new URLSearchParams(q).toString();
-      const msg = qs
-        ? `Hello from Hapi! You sent query: ${qs}`
-        : 'Hello from Hapi! (no query params)';
-      // Return text
-      return h.response(msg).type('text/plain');
-    },
+ 
+  const routes = [];
+
+
+  const routesPath = path.join(__dirname, 'routes');
+
+
+  const routeFiles = fs
+    .readdirSync(routesPath)
+    .filter((file) => file.endsWith('.js')); 
+
+  
+  routeFiles.forEach((file) => {
+    const filePath = path.join(routesPath, file);
+    const fileRoutes = require(filePath); 
+    routes.push(...fileRoutes);  
   });
 
-  // POST /echo
-  // Logs the request body and replies with a short JSON message.
-  server.route({
-    method: 'POST',
-    path: '/echo',
-    options: {
-      // Hapi will parse JSON and urlencoded payloads by default
-      // but this shows you can control size/parse if needed.
-      payload: {
-        parse: true,
-        allow: 'application/json',
-      },
-    },
-    handler: (request, h) => {
-      console.log('POST /echo payload:', request.payload);
-      return {
-        ok: true,
-        message: 'Received your payload',
-        payload: request.payload,
-      };
-    },
-  });
+  server.route(routes);
+  
 
   await server.start();
   console.log(`Server running at ${server.info.uri}`);
