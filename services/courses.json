@@ -1,0 +1,27 @@
+const coursesModel = require('../models/courses');
+const genedModel = require('../models/gened');
+
+class CourseServices {
+  async getCoursesBySubject(subjectCode) {
+    return await coursesModel.find((course) => {
+      return course.code && course.code.startsWith(subjectCode);
+    });
+  }
+
+  async getCoursesByGenEdCategory(categoryCode) {
+    const courses = await coursesModel.find();
+
+    const offeredCourseCodes = new Set(
+      courses.map((course) => course.code)
+    );
+
+    return await genedModel.find((genedCourse) => {
+      return (
+        genedCourse.category_code === categoryCode &&
+        offeredCourseCodes.has(genedCourse.code)
+      );
+    });
+  }
+}
+
+module.exports = new CourseServices();
