@@ -6,9 +6,9 @@ class CourseServices {
     const subject = subjectCode.toUpperCase();
 
     return await coursesModel.find((course) => {
-      const code = this.getCourseCode(course);
+      const baseCode = this.getBaseCourseCode(course.course_code);
 
-      return code.startsWith(subject);
+      return baseCode.startsWith(subject);
     });
   }
 
@@ -37,19 +37,20 @@ class CourseServices {
     });
 
     return allCourses.filter((course) => {
-      const code = this.getCourseCode(course);
+      const baseCode = this.getBaseCourseCode(course.course_code);
 
-      return genEdCourseCodes.has(code);
+      return genEdCourseCodes.has(baseCode);
     });
   }
 
-  getCourseCode(course) {
-    return (
-      course.code ||
-      course.course_code ||
-      course.courseCode ||
-      ''
-    ).trim();
+  getBaseCourseCode(fullCourseCode) {
+    if (!fullCourseCode) {
+      return '';
+    }
+
+    const parts = fullCourseCode.trim().split(' ');
+
+    return `${parts[0]} ${parts[1]}`;
   }
 }
 
